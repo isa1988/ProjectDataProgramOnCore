@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram", "ProjectDataProgram\ProjectDataProgram.csproj", "{53EA85B5-C6FC-40BE-AA17-614658D9B8DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectDataProgram.DAL", "ProjectDataProgram.DAL\ProjectDataProgram.DAL.csproj", "{984F170E-0AAE-499C-9006-AF2512F88CEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.DAL", "ProjectDataProgram.DAL\ProjectDataProgram.DAL.csproj", "{984F170E-0AAE-499C-9006-AF2512F88CEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectDataProgram.DAL.Core", "ProjectDataProgram.DAL.Core\ProjectDataProgram.DAL.Core.csproj", "{09170025-F16E-414E-9905-58684D525EFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.Core", "ProjectDataProgram.DAL.Core\ProjectDataProgram.Core.csproj", "{09170025-F16E-414E-9905-58684D525EFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProjectDataProgram.DAL.Core.DataBase
+namespace ProjectDataProgram.Core.DataBase
 {
     /// <summary>
     /// Проект
@@ -49,11 +49,23 @@ namespace ProjectDataProgram.DAL.Core.DataBase
         /// </summary>
         public int Priority { get; set; }
 
+        /// <summary>
+        /// Исполнители
+        /// </summary>
+        public virtual List<ProjectUser> ProjectUsers { get; set; }
+
+        /// <summary>
+        /// Задачи
+        /// </summary>
+        public virtual List<Task> Tasks { get; set; }
+
         public Project()
         {
             Name = string.Empty;
             CustomerCompany = string.Empty;
             ContractorCompany = string.Empty;
+            ProjectUsers = new List<ProjectUser>();
+            Tasks = new List<Task>();
         }
     }
 }

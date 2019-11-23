@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using ProjectDataProgram.DAL.Core.DataBase;
+using ProjectDataProgram.Core.DataBase;
 
-namespace ProjectDataProgram.DAL.Core.Repositories
+namespace ProjectDataProgram.Core.Repositories
 {
     public interface ITaskRepository : IRepository<Task>
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProjectDataProgram.DAL.Core.DataBase
+namespace ProjectDataProgram.Core.DataBase
 {
     public class Task : Entity
     {
@@ -43,6 +43,15 @@ namespace ProjectDataProgram.DAL.Core.DataBase
         /// Приоритет
         /// </summary>
         public int Priority { get; set; }
+
+        /// <summary>
+        /// Проект
+        /// </summary>
+        public Project Project { get; set; }
+        /// <summary>
+        /// Проект
+        /// </summary>
+        public int ProjectId { get; set; }
 
         public Task()
         {

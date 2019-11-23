@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProjectDataProgram.DAL.Core.DataBase
+namespace ProjectDataProgram.Core.DataBase
 {
-    public class ProjectUser
+    public class ProjectUser : Entity
     {
         public User User { get; set; }
         public int UserId { get; set; }

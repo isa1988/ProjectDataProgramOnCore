@@ -7,8 +7,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ProjectDataProgram.DAL.Data;
+using ProjectDataProgram.DAL.Data.Contracts;
+using ProjectDataProgram.DAL.Data.Init;
+using ProjectDataProgram.DAL.Unit;
+using ProjectDataProgram.DAL.Unit.Contracts;
 
 namespace ProjectDataProgram
 {
@@ -31,6 +37,15 @@ namespace ProjectDataProgram
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var connection = Configuration.GetConnectionString("DefaultConnection");
+
+
+            services.AddDbContext<DataDbContext>(options => options.UseSqlServer(connection));
+            services.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
+            var optionsBuilder = new DbContextOptionsBuilder<DataDbContext>();
+            optionsBuilder.UseSqlServer(connection);
+            services.AddSingleton<IDataDbContextFactory>(
+                sp => new DataDbContextFactory(optionsBuilder.Options));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -52,6 +67,8 @@ namespace ProjectDataProgram
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            new DataDbInitializer().SeedAsync(app).GetAwaiter();
 
             app.UseMvc(routes =>
             {

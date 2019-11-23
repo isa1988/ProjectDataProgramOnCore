@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProjectDataProgram.DAL.Core.DataBase
+namespace ProjectDataProgram.Core.DataBase
 {
     public class Entity
     {

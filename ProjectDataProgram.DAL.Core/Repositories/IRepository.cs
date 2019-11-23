@@ -1,10 +1,10 @@
-﻿using ProjectDataProgram.DAL.Core.DataBase;
+﻿using ProjectDataProgram.Core.DataBase;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectDataProgram.DAL.Core.Repositories
+namespace ProjectDataProgram.Core.Repositories
 {
     public interface IRepository<T> where T : Entity
     {
