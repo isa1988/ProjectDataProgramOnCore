@@ -57,7 +57,7 @@ namespace ProjectDataProgram.Core.DataBase
         /// <summary>
         /// Задачи
         /// </summary>
-        public virtual List<Task> Tasks { get; set; }
+        public virtual List<ProjectTask> Tasks { get; set; }
 
         public Project()
         {
@@ -65,7 +65,7 @@ namespace ProjectDataProgram.Core.DataBase
             CustomerCompany = string.Empty;
             ContractorCompany = string.Empty;
             ProjectUsers = new List<ProjectUser>();
-            Tasks = new List<Task>();
+            Tasks = new List<ProjectTask>();
         }
     }
 }

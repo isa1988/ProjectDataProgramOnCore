@@ -7,9 +7,9 @@ using System.Text;
 
 namespace ProjectDataProgram.DAL.Data.Configuration
 {
-    class TaskConfiguration : IEntityTypeConfiguration<Task>
+    class TaskConfiguration : IEntityTypeConfiguration<ProjectTask>
     {
-        public void Configure(EntityTypeBuilder<Task> builder)
+        public void Configure(EntityTypeBuilder<ProjectTask> builder)
         {
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);

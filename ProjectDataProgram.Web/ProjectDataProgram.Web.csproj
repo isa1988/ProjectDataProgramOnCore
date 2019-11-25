@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>f66a289c-8a49-46b0-8a2c-9c673cff608e</UserSecretsId>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectDataProgram.DAL.Core\ProjectDataProgram.Core.csproj" />
+    <ProjectReference Include="..\ProjectDataProgram.DAL\ProjectDataProgram.DAL.csproj" />
+    <ProjectReference Include="..\ProjectDataProgram.Service\ProjectDataProgram.Service.csproj" />
+  </ItemGroup>
+
+</Project>

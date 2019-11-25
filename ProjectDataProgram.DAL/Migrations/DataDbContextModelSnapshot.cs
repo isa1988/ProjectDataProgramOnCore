@@ -59,9 +59,11 @@ namespace ProjectDataProgram.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128);
 
-                    b.Property<string>("ProviderKey");
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128);
 
                     b.Property<string>("ProviderDisplayName");
 
@@ -91,9 +93,11 @@ namespace ProjectDataProgram.DAL.Migrations
                 {
                     b.Property<int>("UserId");
 
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128);
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasMaxLength(128);
 
                     b.Property<string>("Value");
 
@@ -133,6 +137,39 @@ namespace ProjectDataProgram.DAL.Migrations
                     b.HasIndex("SupervisorUserId");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ProjectDataProgram.Core.DataBase.ProjectTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AuthorId");
+
+                    b.Property<string>("Comment");
+
+                    b.Property<int>("ExecutorId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100);
+
+                    b.Property<int>("Priority");
+
+                    b.Property<int>("ProjectId");
+
+                    b.Property<int>("Status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ExecutorId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("ProjectDataProgram.Core.DataBase.ProjectUser", b =>
@@ -177,39 +214,6 @@ namespace ProjectDataProgram.DAL.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
-                });
-
-            modelBuilder.Entity("ProjectDataProgram.Core.DataBase.Task", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AuthorId");
-
-                    b.Property<string>("Comment");
-
-                    b.Property<int>("ExecutorId");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100);
-
-                    b.Property<int>("Priority");
-
-                    b.Property<int>("ProjectId");
-
-                    b.Property<int>("Status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("ExecutorId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("ProjectDataProgram.Core.DataBase.User", b =>
@@ -321,20 +325,7 @@ namespace ProjectDataProgram.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("ProjectDataProgram.Core.DataBase.ProjectUser", b =>
-                {
-                    b.HasOne("ProjectDataProgram.Core.DataBase.Project", "Project")
-                        .WithMany("ProjectUsers")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("ProjectDataProgram.Core.DataBase.User", "User")
-                        .WithMany("ProjectUsers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("ProjectDataProgram.Core.DataBase.Task", b =>
+            modelBuilder.Entity("ProjectDataProgram.Core.DataBase.ProjectTask", b =>
                 {
                     b.HasOne("ProjectDataProgram.Core.DataBase.User", "Author")
                         .WithMany("TaskAuthors")
@@ -349,6 +340,19 @@ namespace ProjectDataProgram.DAL.Migrations
                     b.HasOne("ProjectDataProgram.Core.DataBase.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ProjectDataProgram.Core.DataBase.ProjectUser", b =>
+                {
+                    b.HasOne("ProjectDataProgram.Core.DataBase.Project", "Project")
+                        .WithMany("ProjectUsers")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ProjectDataProgram.Core.DataBase.User", "User")
+                        .WithMany("ProjectUsers")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618

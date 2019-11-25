@@ -31,20 +31,12 @@ namespace ProjectDataProgram.Core.DataBase
         /// <summary>
         /// Задачи где пользователь как автор
         /// </summary>
-        public virtual ICollection<Task> TaskAuthors { get; set; }
+        public virtual ICollection<ProjectTask> TaskAuthors { get; set; }
 
         /// <summary>
         /// Задачи где пользователь как исполнитель
         /// </summary>
-        public virtual ICollection<Task> TaskExecutors { get; set; }
+        public virtual ICollection<ProjectTask> TaskExecutors { get; set; }
 
-        public User()
-        {
-            FullName = string.Empty;
-            ProjectSupervisors = new List<Project>();
-            ProjectUsers = new List<ProjectUser>();
-            TaskAuthors = new List<Task>();
-            TaskExecutors = new List<Task>();
-        }
     }
 }

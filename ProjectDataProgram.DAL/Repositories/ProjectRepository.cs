@@ -19,13 +19,14 @@ namespace ProjectDataProgram.DAL.Repositories
 
         public override IEnumerable<Project> GetAll()
         {
-            return DbSet.Include(p => p.Tasks).Include(x => x.ProjectUsers).ToList();
+            return DbSet.Include(y =>y.SupervisorUser).Include(p => p.Tasks).Include(x => x.ProjectUsers).ToList();
         }
         
         public IEnumerable<Project> GetFilter(string name, string contractorCompany, 
-                                      string customerCompany, int? priority, int? supervisorUserId, int? userId)
+                                      string customerCompany, bool isDatePeriod, DateTime dateBegin, DateTime dateEnd,
+                                      int? priority, int? supervisorUserId, int? userId)
         {
-            IQueryable<Project> result = DbSet.Include(p => p.Tasks).Include(x => x.ProjectUsers);
+            IQueryable<Project> result = DbSet.Include(y => y.SupervisorUser).Include(p => p.Tasks).Include(x => x.ProjectUsers);
             if (name?.Length > 0)
                 result = result.Where(x => x.Name.ToLower().Contains(name.ToLower()));
             if (contractorCompany?.Length > 0)
@@ -36,6 +37,9 @@ namespace ProjectDataProgram.DAL.Repositories
                 result = result.Where(x => x.Priority == priority.Value);
             if (supervisorUserId.HasValue)
                 result = result.Where(x => x.SupervisorUserId == supervisorUserId.Value);
+            if (isDatePeriod)
+                result = result.Where(x => x.DateBegin.Date >= dateBegin.Date && x.DateEnd.Date < dateEnd.Date);
+
             if (userId.HasValue)
             {
                 var projectUsers = _context.ProjectUsers.Where(x => x.UserId == userId.Value).ToList();
@@ -45,6 +49,10 @@ namespace ProjectDataProgram.DAL.Repositories
                     proIntIds = proIntIds.Distinct().ToList();
                     result = result.Where(x => proIntIds.Any(p => x.Id == p));
                 }
+                else
+                {
+                    return new List<Project>();
+                }
             }
 
             return result.ToList();
@@ -52,7 +60,7 @@ namespace ProjectDataProgram.DAL.Repositories
 
         public override Project GetById(int id)
         {
-            return DbSet.Include(p => p.Tasks).Include(x => x.ProjectUsers).FirstOrDefault(p => p.Id == id);
+            return DbSet.Include(y => y.SupervisorUser).Include(p => p.Tasks).Include(x => x.ProjectUsers).FirstOrDefault(p => p.Id == id);
         }
 
         public void AddAsync(List<ProjectUser> users)
@@ -87,6 +95,12 @@ namespace ProjectDataProgram.DAL.Repositories
         {
             DeleteUser(entity.ProjectUsers);
             DbSet.Remove(entity);
+        }
+
+        public List<ProjectUser> GetOProjectUsers(List<int> idUserList, int projectId)
+        {
+            return _context.ProjectUsers.Where(x => idUserList.Any(y => x.UserId == y) &&
+                                                    x.ProjectId == projectId).ToList();
         }
     }
 }

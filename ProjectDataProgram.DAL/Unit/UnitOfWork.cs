@@ -28,11 +28,12 @@ namespace ProjectDataProgram.DAL.Unit
 
             Project = new ProjectRepository(context);
             Task = new TaskRepository(context);
-            
+            User = new UserRepository(context);
         }
 
         public IProjectRepository Project { get; }
         public ITaskRepository Task { get; }
+        public IUserRepository User { get; }
         public Task<int> CompleteAsync()
         {
             return _context.SaveChangesAsync();

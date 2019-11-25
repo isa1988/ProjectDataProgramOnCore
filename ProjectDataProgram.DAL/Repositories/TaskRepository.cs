@@ -9,28 +9,28 @@ using ProjectDataProgram.DAL.Data;
 
 namespace ProjectDataProgram.DAL.Repositories
 {
-    class TaskRepository : Repository<Task>, ITaskRepository
+    class TaskRepository : Repository<ProjectTask>, ITaskRepository
     {
         public TaskRepository(DataDbContext context) : base(context)
         {
             DbSet = context.Tasks;
         }
 
-        public override IEnumerable<Task> GetAll()
+        public override IEnumerable<ProjectTask> GetAll()
         {
             return DbSet.Include(p => p.Author).Include(x => x.Executor).Include(x => x.Project).ToList();
         }
 
-        public override Task GetById(int id)
+        public override ProjectTask GetById(int id)
         {
             return DbSet.Include(p => p.Author).Include(x => x.Executor)
                         .Include(x => x.Project).FirstOrDefault(p => p.Id == id);
         }
 
-        public IEnumerable<Task> GetFilter(string name, int? authorId, int? executorId, int? projectId,
+        public IEnumerable<ProjectTask> GetFilter(string name, int? authorId, int? executorId, int? projectId,
                                             int? priority, int? status)
         {
-            IQueryable<Task> result = DbSet.Include(p => p.Author).Include(x => x.Executor).Include(x => x.Project);
+            IQueryable<ProjectTask> result = DbSet.Include(p => p.Author).Include(x => x.Executor).Include(x => x.Project);
             if (name?.Length > 0)
                 result = result.Where(x => x.Name.ToLower().Contains(name.ToLower()));
             if (authorId.HasValue)

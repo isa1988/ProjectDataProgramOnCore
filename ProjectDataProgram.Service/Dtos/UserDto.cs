@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ProjectDataProgram.Service.Dtos
+{
+    public class UserDto
+    {
+        /// <summary>
+        /// Идентификатор
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// ФИО
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Электронная почта
+        /// </summary>
+        public string EMail { get; set; }
+
+        public ProjectUserStatus Status { get; set; }
+
+        public UserDto()
+        {
+            Name = string.Empty;
+            EMail = string.Empty;
+            Status = ProjectUserStatus.Save;
+        }
+    }
+}

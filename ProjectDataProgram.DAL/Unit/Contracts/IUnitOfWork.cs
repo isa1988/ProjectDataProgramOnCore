@@ -11,6 +11,7 @@ namespace ProjectDataProgram.DAL.Unit.Contracts
     {
         IProjectRepository Project { get; }
         ITaskRepository Task { get; }
+        IUserRepository User { get; }
 
         Task<int> CompleteAsync();
         void BeginTransaction();

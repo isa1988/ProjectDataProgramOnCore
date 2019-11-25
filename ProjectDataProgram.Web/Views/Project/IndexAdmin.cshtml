@@ -1,0 +1,159 @@
+﻿@model ProjectDataProgram.Web.Models.ProjectIndexModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>Проекты</h4>
+<hr />
+
+<p>
+    <a asp-action="Create">Добавить новый проект</a>
+</p>
+
+<div class="row">
+    
+    <div class="accordion" id="accordionExample">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Фильтр
+                    </button>
+                </h2>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                    <div class="card-bod col-12">
+                        <form asp-action="IndexAdmin">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.Name" class="control-label"></label>
+                                <input asp-for="@Model.Filter.Name" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.ContractorCompany" class="control-label"></label>
+                                <input asp-for="@Model.Filter.ContractorCompany" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.ContractorCompany" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.CustomerCompany" class="control-label"></label>
+                                <input asp-for="@Model.Filter.CustomerCompany" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.CustomerCompany" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.IsDatePeriod" class="control-label"></label>
+                                <input asp-for="@Model.Filter.IsDatePeriod" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.IsDatePeriod" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.DateBegin" class="control-label"></label>
+                                <input asp-for="@Model.Filter.DateBegin" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.DateBegin" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.DateEnd" class="control-label"></label>
+                                <input asp-for="@Model.Filter.DateEnd" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.DateEnd" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.IsPriority" class="control-label"></label>
+                                <input asp-for="@Model.Filter.IsPriority" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.IsPriority" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.Priority" class="control-label"></label>
+                                <input asp-for="@Model.Filter.Priority" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.Priority" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.IsSpervisorUser" class="control-label"></label>
+                                <input asp-for="@Model.Filter.IsSpervisorUser" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.IsSpervisorUser" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.SpervisorUserId" class="control-label"></label>
+                                <select asp-for="@Model.Filter.SpervisorUserId" class="form-control" asp-items="@Model.Filter.SpervisorUser">
+                                    <option id="ALL"></option>
+                                </select>
+                                <span asp-validation-for="@Model.Filter.SpervisorUserId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.IsUser" class="control-label"></label>
+                                <input asp-for="@Model.Filter.IsUser" class="form-control" />
+                                <span asp-validation-for="@Model.Filter.IsUser" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Filter.UserId" class="control-label"></label>
+                                <select asp-for="@Model.Filter.UserId" class="form-control" asp-items="@Model.Filter.User">
+                                    <option id="ALL"></option>
+                                </select>
+                                <span asp-validation-for="@Model.Filter.UserId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Поиск" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@foreach (var organizations in Model.ProjectList.Select((item, index) => new { item, index })
+   .GroupBy(x => x.index / 3)
+   .Select(g => g.Select(x => x.item)))
+{
+    <div class="row">
+
+        @foreach (ProjectDataProgram.Web.Models.ProjectModl rec in organizations)
+        {
+            <div class="col-4">
+                <div class="row row-conformity">
+                    <div class="col-12">
+                        <h1>@rec.Name</h1><br />
+                        <p>@rec.ContractorCompany</p>
+                        <p>@rec.CustomerCompany</p>
+                        <p>Перид с @rec.DateBegin.ToString("dd.MM.yyyy") до @rec.DateEnd.ToString("dd.MM.yyyy")</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+
+        @foreach (ProjectDataProgram.Web.Models.ProjectModl rec in organizations)
+        {
+            <div class="col-4">
+                <div class="row row-conformity">
+                    <div class="col-12">
+
+                        @Html.ActionLink("Edit", "Edit", new { id = rec.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = rec.Id })
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @foreach (ProjectDataProgram.Web.Models.ProjectModl rec in organizations)
+        {
+            <div class="col-4">
+                <p>Сотрудники</p>
+                @foreach (ProjectDataProgram.Web.Models.ProjectUserModel recUser in rec.ProjectUsers)
+                {
+                    <p> @recUser.FullName + @recUser.Email </p>
+                }
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
