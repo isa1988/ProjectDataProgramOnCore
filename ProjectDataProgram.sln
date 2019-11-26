@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.Web", "ProjectDataProgram.Web\ProjectDataProgram.Web.csproj", "{65196004-2E15-4923-84DC-9368FA942A3A}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.DAL", "ProjectDataProgram.DAL\ProjectDataProgram.DAL.csproj", "{984F170E-0AAE-499C-9006-AF2512F88CEF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.Core", "ProjectDataProgram.DAL.Core\ProjectDataProgram.Core.csproj", "{09170025-F16E-414E-9905-58684D525EFE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.Service", "ProjectDataProgram.Service\ProjectDataProgram.Service.csproj", "{2E2F8B0D-B2F8-4C83-BB48-76FDC42844DE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectDataProgram.Web", "ProjectDataProgram.Web\ProjectDataProgram.Web.csproj", "{65196004-2E15-4923-84DC-9368FA942A3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
