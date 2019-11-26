@@ -31,6 +31,7 @@ namespace ProjectDataProgram.Web.Models
         public SelectList User { get; set; }
         [DisplayName("Исполнитель")]
         public int? UserId { get; set; }
+        [DisplayName("Искать по периоду")]
         public bool IsDatePeriod { get; set; }
         [DisplayName("Дата начала")]
         public DateTime DateBegin { get; set; }

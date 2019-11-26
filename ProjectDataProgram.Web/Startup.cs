@@ -40,10 +40,10 @@ namespace ProjectDataProgram.Web
             });
 
             var connection = Configuration.GetConnectionString("DefaultConnection");
-            /*if (connection.Contains("%CONTENTROOTPATH%"))
+            if (connection.Contains("%CONTENTROOTPATH%"))
             {
                 connection = connection.Replace("%CONTENTROOTPATH%", _contentRootPath);
-            }*/
+            }
             services.AddDbContext<DataDbContext>(options => options.UseSqlServer(connection));
             services.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
             var optionsBuilder = new DbContextOptionsBuilder<DataDbContext>();

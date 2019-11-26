@@ -12,13 +12,17 @@ namespace ProjectDataProgram.Web.Controllers
     {
         public IActionResult Index()
         {
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole("AdminAupervisor"))
             {
-                return View("IndexForAdmin");
+                return View("IndexAdmn");
             }
-            else if (User.IsInRole("User"))
+            else if (User.IsInRole("ProjectManager"))
             {
-                return View("IndexForUser");
+                return View("IndexPM");
+            }
+            else if (User.IsInRole("Employee"))
+            {
+                return View("IndexEmp");
             }
             else
             {

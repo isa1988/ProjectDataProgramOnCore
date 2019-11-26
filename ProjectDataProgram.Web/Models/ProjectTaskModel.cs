@@ -81,6 +81,7 @@ namespace ProjectDataProgram.Web.Models
         /// <summary>
         /// Приоритет
         /// </summary>
+        [Range(typeof(int), "1", "5")]
         [DisplayName("Приоритет")]
         public int Priority { get; set; }
 
