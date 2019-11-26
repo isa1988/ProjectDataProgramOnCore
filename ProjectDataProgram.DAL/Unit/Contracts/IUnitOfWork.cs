@@ -10,7 +10,7 @@ namespace ProjectDataProgram.DAL.Unit.Contracts
     public  interface IUnitOfWork : IDisposable
     {
         IProjectRepository Project { get; }
-        ITaskRepository Task { get; }
+        IProjectTaskRepository ProjectTask { get; }
         IUserRepository User { get; }
 
         Task<int> CompleteAsync();

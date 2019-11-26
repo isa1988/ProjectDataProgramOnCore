@@ -9,8 +9,8 @@ namespace ProjectDataProgram.Service.Services.Contracts
 {
     public interface IProjectService
     {
-        Task<EntityOperationResult<Project>> CreateItemAsync(ProjectDto basketCreateDto);
-        Task<EntityOperationResult<Project>> EditItemAsync(ProjectDto basketEditto);
+        Task<EntityOperationResult<Project>> CreateItemAsync(ProjectDto projectCreateDto);
+        Task<EntityOperationResult<Project>> EditItemAsync(ProjectDto projectEditto);
         List<ProjectDto> ProjectAll();
         List<ProjectDto> ProjectAll(ProjectFilterDto projectFilterDto);
         ProjectDto GetProject(int id);

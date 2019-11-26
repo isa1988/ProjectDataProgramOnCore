@@ -51,12 +51,18 @@ namespace ProjectDataProgram.Service.Dtos
         /// </summary>
         public virtual List<ProjectUserDto> ProjectUsers { get; set; }
 
+        /// <summary>
+        /// Задания
+        /// </summary>
+        public virtual List<ProjectTaskDto> ProjectTasks { get; set; }
+
         public ProjectDto()
         {
             Name = string.Empty;
             CustomerCompany = string.Empty;
             ContractorCompany = string.Empty;
             ProjectUsers = new List<ProjectUserDto>();
+            ProjectTasks = new List<ProjectTaskDto>();
         }
     }
 }

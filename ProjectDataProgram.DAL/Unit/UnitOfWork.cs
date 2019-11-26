@@ -27,12 +27,12 @@ namespace ProjectDataProgram.DAL.Unit
             _repositories = new ConcurrentDictionary<Type, object>();
 
             Project = new ProjectRepository(context);
-            Task = new TaskRepository(context);
+            ProjectTask = new ProjectTaskRepository(context);
             User = new UserRepository(context);
         }
 
         public IProjectRepository Project { get; }
-        public ITaskRepository Task { get; }
+        public IProjectTaskRepository ProjectTask { get; }
         public IUserRepository User { get; }
         public Task<int> CompleteAsync()
         {

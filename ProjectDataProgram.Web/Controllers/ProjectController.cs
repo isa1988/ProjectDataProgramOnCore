@@ -87,6 +87,95 @@ namespace ProjectDataProgram.Web.Controllers
             return View(request);
         }
 
+        [Authorize(Roles = "ProjectManager")]
+        public IActionResult IndexPM(List<ProjectDto> projectList)
+        {
+            if (projectList == null || projectList.Count == 0)
+                projectList = _service.ProjectAll(new ProjectFilterDto
+                {
+                    IsSpervisorUser = true,
+                    SpervisorUserId = int.Parse(_userManager.GetUserId(User))
+                });
+            ProjectIndexModel projectModl = new ProjectIndexModel();
+            if (projectModl != null) projectModl.ProjectList = GetConvert(projectList);
+            projectModl.Filter = new ProjectFilterModel();
+            
+            var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.Employee }).Select(x =>
+                 new ProjectUserModel
+                 {
+                     Id = x.Id,
+                     Email = x.EMail,
+                     FullName = x.Name,
+                     Status = x.Status
+                 }).ToList();
+            projectModl.Filter.User = new SelectList(supervisorUserList, "Id", "FullName");
+            return View(projectModl);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> IndexPM(ProjectIndexModel request)
+        {
+            var filter = new ProjectFilterDto
+            {
+                Name = request.Filter.Name,
+                ContractorCompany = request.Filter.ContractorCompany,
+                CustomerCompany = request.Filter.CustomerCompany,
+                IsDatePeriod = request.Filter.IsDatePeriod,
+                DateBegin = request.Filter.DateBegin,
+                DateEnd = request.Filter.DateEnd,
+                IsUser = request.Filter.IsUser,
+                UserId = request.Filter.UserId,
+                IsPriority = request.Filter.IsPriority,
+                Priority = request.Filter.Priority,
+                IsSpervisorUser = true,
+                SpervisorUserId = int.Parse(_userManager.GetUserId(User))
+            };
+            var result = _service.ProjectAll(filter);
+            request.Filter = request.Filter;
+            request.ProjectList = GetConvert(result);
+            return View(request);
+        }
+
+        [Authorize(Roles = "Employee")]
+        public IActionResult IndexEmp(List<ProjectDto> projectList)
+        {
+            if (projectList == null || projectList.Count == 0)
+                projectList = _service.ProjectAll(new ProjectFilterDto
+                {
+                    IsUser = true,
+                    UserId = int.Parse(_userManager.GetUserId(User))
+                });
+            ProjectIndexModel projectModl = new ProjectIndexModel();
+            if (projectModl != null) projectModl.ProjectList = GetConvert(projectList);
+            projectModl.Filter = new ProjectFilterModel();
+            return View(projectModl);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> IndexEmp(ProjectIndexModel request)
+        {
+            var filter = new ProjectFilterDto
+            {
+                Name = request.Filter.Name,
+                ContractorCompany = request.Filter.ContractorCompany,
+                CustomerCompany = request.Filter.CustomerCompany,
+                IsDatePeriod = request.Filter.IsDatePeriod,
+                DateBegin = request.Filter.DateBegin,
+                DateEnd = request.Filter.DateEnd,
+                IsUser = true,
+                UserId = int.Parse(_userManager.GetUserId(User)),
+                IsPriority = request.Filter.IsPriority,
+                Priority = request.Filter.Priority,
+                IsSpervisorUser = false
+            };
+            var result = _service.ProjectAll(filter);
+            request.Filter = request.Filter;
+            request.ProjectList = GetConvert(result);
+            return View(request);
+        }
+
         private List<ProjectModl> GetConvert(List<ProjectDto> projectList)
         {
             List<ProjectModl> projectResultList = new List<ProjectModl>();
@@ -102,8 +191,22 @@ namespace ProjectDataProgram.Web.Controllers
                     DateBegin = projectList[i].DateBegin,
                     DateEnd = projectList[i].DateEnd,
                     Priority = projectList[i].Priority,
-                    SupervisorUserId = projectList[i].SupervisorUser.Id
+                    SupervisorUserId = projectList[i].SupervisorUser.Id,
+                    SupervisorUserName = projectList[i].SupervisorUser.Name
                 };
+                project.ProjectTasks = projectList[i].ProjectTasks.Select(x => new ProjectTaskModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Comment = x.Comment,
+                    Priority = x.Priority,
+                    ProjectId = x.Project.Id,
+                    AuthorId = x.Author.Id,
+                    AuthorName = x.Author.Name + x.Author.EMail,
+                    ExecutorId = x.Executor.Id,
+                    ExecutorName  = x.Executor.Name + x.Executor.EMail,
+                    Status = x.Status
+                }).ToList();
                 for (int j = 0; j < projectList[i].ProjectUsers.Count; j++)
                 {
                     project.ProjectUsers.Add(new ProjectUserModel
@@ -118,7 +221,8 @@ namespace ProjectDataProgram.Web.Controllers
 
             return projectResultList;
         }
-        
+
+
 
         [Authorize(Roles = "AdminAupervisor")]
         public IActionResult Create()

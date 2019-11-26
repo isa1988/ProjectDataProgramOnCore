@@ -9,9 +9,9 @@ using ProjectDataProgram.DAL.Data;
 
 namespace ProjectDataProgram.DAL.Repositories
 {
-    class TaskRepository : Repository<ProjectTask>, ITaskRepository
+    class ProjectTaskRepository : Repository<ProjectTask>, IProjectTaskRepository
     {
-        public TaskRepository(DataDbContext context) : base(context)
+        public ProjectTaskRepository(DataDbContext context) : base(context)
         {
             DbSet = context.Tasks;
         }

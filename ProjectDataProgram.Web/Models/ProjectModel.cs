@@ -42,6 +42,15 @@ namespace ProjectDataProgram.Web.Models
         [DisplayName("Руководитель проекта")]
         public int SupervisorUserId { get; set; }
 
+        /// <summary>
+        /// Руководитель проекта имя
+        /// </summary>
+        [DisplayName("Руководитель проекта")]
+        public string SupervisorUserName { get; set; }
+
+        /// <summary>
+        /// Руководители проекта
+        /// </summary>
         [DisplayName("Руководитель проекта")]
         public SelectList SupervisorUserList { get; set; }
 
@@ -73,12 +82,18 @@ namespace ProjectDataProgram.Web.Models
         /// </summary>
         public virtual List<ProjectUserModel> ProjectUsers { get; set; }
 
+        /// <summary>
+        /// Задания
+        /// </summary>
+        public virtual List<ProjectTaskModel> ProjectTasks { get; set; }
+
         public ProjectModl()
         {
             Name = string.Empty;
             CustomerCompany = string.Empty;
             ContractorCompany = string.Empty;
             ProjectUsers = new List<ProjectUserModel>();
+            ProjectTasks = new List<ProjectTaskModel>();
         }
     }
 }

@@ -174,7 +174,9 @@ namespace ProjectDataProgram.Service.Services
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 List<ProjectDto> projectResultList = new List<ProjectDto>();
-                List<User> users = unitOfWork.User.UserList(new List<StatusRole>() {StatusRole.Employee});
+                List<User> users = unitOfWork.User.UserList(new List<StatusRole>() { StatusRole.Employee });
+                List<User> userPMs = unitOfWork.User.UserList(new List<StatusRole>()
+                                      { StatusRole.ProjectManager, StatusRole.AdminAupervisor });
 
                 for (int i = 0; i < projectList.Count; i++)
                 {
@@ -192,8 +194,43 @@ namespace ProjectDataProgram.Service.Services
                             Id = projectList[i].SupervisorUser.Id,
                             Name = projectList[i].SupervisorUser.FullName,
                             EMail = projectList[i].SupervisorUser.Email
-                        }
+                        },
                     };
+                    for (int j = 0; j < projectList[i].Tasks.Count; j++)
+                    {
+                        User author = userPMs.FirstOrDefault(x => x.Id == projectList[i].Tasks[j].AuthorId);
+                        if (author == null) continue;
+                        User executor = users.FirstOrDefault(x => x.Id == projectList[i].Tasks[j].ExecutorId);
+                        if (executor == null) continue;
+
+                        project.ProjectTasks.Add(new ProjectTaskDto
+                        {
+                            Id = projectList[i].Tasks[j].Id,
+                            Name = projectList[i].Tasks[j].Name,
+                            Comment = projectList[i].Tasks[j].Comment,
+                            Priority = projectList[i].Tasks[j].Priority,
+                            Status = (StatusTask)projectList[i].Tasks[j].Status,
+                            Project = new ProjectDto
+                            {
+                                Id = projectList[i].Tasks[j].ProjectId
+                            },
+                            Author = new UserDto
+                            {
+                                Id = author.Id,
+                                Name = author.FullName,
+                                EMail = author.Email
+                            },
+                            Executor = new UserDto
+                            {
+                                Id = executor.Id,
+                                Name = executor.FullName,
+                                EMail = executor.Email
+                            }
+                        });
+                    }
+
+
+
                     for (int j = 0; j < projectList[i].ProjectUsers.Count; j++)
                     {
                         User user = users.FirstOrDefault(x => x.Id == projectList[i].ProjectUsers[j].UserId);

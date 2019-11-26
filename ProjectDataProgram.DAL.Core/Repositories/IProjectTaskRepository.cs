@@ -5,7 +5,7 @@ using ProjectDataProgram.Core.DataBase;
 
 namespace ProjectDataProgram.Core.Repositories
 {
-    public interface ITaskRepository : IRepository<ProjectTask>
+    public interface IProjectTaskRepository : IRepository<ProjectTask>
     {
     }
 }
