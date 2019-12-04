@@ -65,6 +65,13 @@ namespace ProjectDataProgram.Web.Controllers
             
             request.ProjectList = Mapper.Map<List<ProjectModl>>(_service.ProjectAll(filter)) ;
             request.Filter = request.Filter;
+            var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                {StatusRole.AdminAupervisor, StatusRole.ProjectManager}, _serviceUser);
+            request.Filter.SpervisorUser = new SelectList(supervisorUserList, "Id", "FullName");
+
+            var employeeUserList = _helper.GetUsers(new List<StatusRole>()
+                {StatusRole.Employee}, _serviceUser);
+            request.Filter.User = new SelectList(employeeUserList, "Id", "FullName");
             return View(request);
         }
 
@@ -97,6 +104,10 @@ namespace ProjectDataProgram.Web.Controllers
             filter.SpervisorUserId = int.Parse(_userManager.GetUserId(User));
             request.ProjectList = Mapper.Map<List<ProjectModl>>(_service.ProjectAll(filter));
             request.Filter = request.Filter;
+            var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                {StatusRole.Employee}, _serviceUser);
+
+            request.Filter.User = new SelectList(supervisorUserList, "Id", "FullName");
             return View(request);
         }
 

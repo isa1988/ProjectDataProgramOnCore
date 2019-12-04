@@ -78,6 +78,7 @@ namespace ProjectDataProgram.Web
         private void ProjectFilter()
         {
             CreateMap<ProjectFilterDto, ProjectFilterModel>();
+            CreateMap<ProjectFilterModel, ProjectFilterDto>();
         }
     }
 }
