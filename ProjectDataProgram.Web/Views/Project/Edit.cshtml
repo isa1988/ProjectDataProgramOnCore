@@ -74,6 +74,7 @@
                 {
                     @Html.HiddenFor(model => model.ProjectUsers[i].Id)
                     @Html.HiddenFor(model => model.ProjectUsers[i].FullName)
+                    @Html.HiddenFor(model => model.ProjectUsers[i].ProjectUserId)
                     @Html.HiddenFor(model => model.ProjectUsers[i].Status)
                     @Html.HiddenFor(model => model.ProjectUsers[i].Email)
                     <div class="row">
@@ -102,7 +103,7 @@
                                 <input asp-for="@Model.ProjectUsers[i].IsDelete" class="form-control" />
                             }
                         </div>
-                    
+
                     </div>
                 }
             </div>

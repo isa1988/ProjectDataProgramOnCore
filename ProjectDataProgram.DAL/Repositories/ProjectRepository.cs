@@ -12,6 +12,15 @@ namespace ProjectDataProgram.DAL.Repositories
 {
     public class ProjectRepository : Repository<Project>, IProjectRepository
     {
+
+        private IQueryable<Project> GetInclude()
+        {
+            return DbSet.Include(y => y.SupervisorUser)
+                        .Include(p => p.Tasks).ThenInclude(x => x.Author)
+                        .Include(p => p.Tasks).ThenInclude(x => x.Executor)
+                        .Include(x => x.ProjectUsers).ThenInclude(x => x.User);
+        }
+
         public ProjectRepository(DataDbContext context) : base(context)
         {
             DbSet = context.Projects;
@@ -19,14 +28,14 @@ namespace ProjectDataProgram.DAL.Repositories
 
         public override IEnumerable<Project> GetAll()
         {
-            return DbSet.Include(y =>y.SupervisorUser).Include(p => p.Tasks).Include(x => x.ProjectUsers).ToList();
+            return GetInclude().ToList();
         }
         
         public IEnumerable<Project> GetFilter(string name, string contractorCompany, 
                                       string customerCompany, bool isDatePeriod, DateTime dateBegin, DateTime dateEnd,
                                       int? priority, int? supervisorUserId, int? userId)
         {
-            IQueryable<Project> result = DbSet.Include(y => y.SupervisorUser).Include(p => p.Tasks).Include(x => x.ProjectUsers);
+            IQueryable<Project> result = GetInclude();
             if (name?.Length > 0)
                 result = result.Where(x => x.Name.ToLower().Contains(name.ToLower()));
             if (contractorCompany?.Length > 0)
@@ -60,10 +69,10 @@ namespace ProjectDataProgram.DAL.Repositories
 
         public override Project GetById(int id)
         {
-            return DbSet.Include(y => y.SupervisorUser).Include(p => p.Tasks).Include(x => x.ProjectUsers).FirstOrDefault(p => p.Id == id);
+            return GetInclude().FirstOrDefault(p => p.Id == id);
         }
 
-        public void AddAsync(List<ProjectUser> users)
+        private void AddUsers(List<ProjectUser> users)
         {
             if (users?.Count > 0)
             {
@@ -85,10 +94,15 @@ namespace ProjectDataProgram.DAL.Repositories
             }
         }
 
-        public void Update(List<ProjectUser> addUsers, List<ProjectUser> deleteUsers)
+        public void UpdateProjectUsers(List<ProjectUser> addUsers, List<ProjectUser> deleteUsers)
         {
-            AddAsync(addUsers);
+            AddUsers(addUsers);
             DeleteUser(deleteUsers);
+        }
+        
+        public void UpdateProjectUsers(List<ProjectUser> addUsers)
+        {
+            AddUsers(addUsers);
         }
 
         public void Delete(Project entity)

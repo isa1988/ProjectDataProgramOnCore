@@ -7,6 +7,14 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="ClassHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Helper\ClassHelper.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="8.1.1" />

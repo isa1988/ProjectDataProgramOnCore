@@ -14,12 +14,14 @@ namespace ProjectDataProgram.Web.Models
         public string FullName { get; set; }
         public string Email { get; set; }
         public ProjectUserStatus Status { get; set; }
+        public int ProjectUserId { get; set; }
 
         public ProjectUserModel()
         {
             FullName = string.Empty;
             Email = string.Empty;
-            Status = ProjectUserStatus.Save;
+            if ((int)Status == 0)
+                Status = ProjectUserStatus.Save;
         }
     }
 }

@@ -11,6 +11,8 @@ using ProjectDataProgram.Core.Repositories;
 using ProjectDataProgram.Web.Models;
 using ProjectDataProgram.Service.Dtos;
 using ProjectDataProgram.Service.Services.Contracts;
+using AutoMapper;
+using ProjectDataProgram.Web.Helper;
 
 namespace ProjectDataProgram.Web.Controllers
 {
@@ -19,6 +21,7 @@ namespace ProjectDataProgram.Web.Controllers
         private readonly UserManager<ProjectDataProgram.Core.DataBase.User> _userManager;
         private readonly IProjectService _service;
         private readonly IUserService _serviceUser;
+        private readonly ClassHelper _helper;
 
         public ProjectController(UserManager<ProjectDataProgram.Core.DataBase.User> userManager,
             IProjectService service, IUserService serviceUser)
@@ -32,6 +35,7 @@ namespace ProjectDataProgram.Web.Controllers
             _userManager = userManager;
             _service = service;
             _serviceUser = serviceUser;
+            _helper = new ClassHelper();
         }
 
         [Authorize(Roles = "AdminAupervisor")]
@@ -39,26 +43,17 @@ namespace ProjectDataProgram.Web.Controllers
         {
             if (projectList == null || projectList.Count == 0) projectList = _service.ProjectAll();
             ProjectIndexModel projectModl = new ProjectIndexModel();
-            if (projectModl != null) projectModl.ProjectList = GetConvert(projectList);
+            projectModl.ProjectList = Mapper.Map<List<ProjectModl>>(projectList);
             projectModl.Filter = new ProjectFilterModel();
-            var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.AdminAupervisor, StatusRole.ProjectManager }).Select(x =>
-                new ProjectUserModel
-                {
-                    Id = x.Id,
-                    Email = x.EMail,
-                    FullName = x.Name,
-                    Status = x.Status
-                }).ToList();
+
+            var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                {StatusRole.AdminAupervisor, StatusRole.ProjectManager}, _serviceUser);
             projectModl.Filter.SpervisorUser = new SelectList(supervisorUserList, "Id", "FullName");
-            supervisorUserList =_serviceUser.UserList(new List<StatusRole>() { StatusRole.Employee }).Select(x =>
-                new ProjectUserModel
-                {
-                    Id = x.Id,
-                    Email = x.EMail,
-                    FullName = x.Name,
-                    Status = x.Status
-                }).ToList();
-            projectModl.Filter.User = new SelectList(supervisorUserList, "Id", "FullName");
+
+            var employeeUserList = _helper.GetUsers(new List<StatusRole>()
+                {StatusRole.Employee}, _serviceUser);    
+            projectModl.Filter.User = new SelectList(employeeUserList, "Id", "FullName");
+
             return View(projectModl);
         }
 
@@ -66,24 +61,10 @@ namespace ProjectDataProgram.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> IndexAdmin(ProjectIndexModel request)
         {
-            var filter = new ProjectFilterDto
-            {
-                Name = request.Filter.Name,
-                ContractorCompany = request.Filter.ContractorCompany,
-                CustomerCompany = request.Filter.CustomerCompany,
-                IsDatePeriod = request.Filter.IsDatePeriod,
-                DateBegin = request.Filter.DateBegin,
-                DateEnd = request.Filter.DateEnd,
-                IsUser = request.Filter.IsUser,
-                UserId = request.Filter.UserId,
-                IsPriority = request.Filter.IsPriority,
-                Priority = request.Filter.Priority,
-                IsSpervisorUser = request.Filter.IsSpervisorUser,
-                SpervisorUserId = request.Filter.SpervisorUserId
-            };
-            var result = _service.ProjectAll(filter);
+            var filter = Mapper.Map<ProjectFilterDto>(request.Filter); 
+            
+            request.ProjectList = Mapper.Map<List<ProjectModl>>(_service.ProjectAll(filter)) ;
             request.Filter = request.Filter;
-            request.ProjectList = GetConvert(result);
             return View(request);
         }
 
@@ -97,17 +78,12 @@ namespace ProjectDataProgram.Web.Controllers
                     SpervisorUserId = int.Parse(_userManager.GetUserId(User))
                 });
             ProjectIndexModel projectModl = new ProjectIndexModel();
-            if (projectModl != null) projectModl.ProjectList = GetConvert(projectList);
+            projectModl.ProjectList = Mapper.Map<List<ProjectModl>>(projectList);
             projectModl.Filter = new ProjectFilterModel();
-            
-            var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.Employee }).Select(x =>
-                 new ProjectUserModel
-                 {
-                     Id = x.Id,
-                     Email = x.EMail,
-                     FullName = x.Name,
-                     Status = x.Status
-                 }).ToList();
+
+            var supervisorUserList = _helper.GetUsers(new List<StatusRole>() 
+                                    {StatusRole.Employee}, _serviceUser);
+                 
             projectModl.Filter.User = new SelectList(supervisorUserList, "Id", "FullName");
             return View(projectModl);
         }
@@ -116,24 +92,11 @@ namespace ProjectDataProgram.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> IndexPM(ProjectIndexModel request)
         {
-            var filter = new ProjectFilterDto
-            {
-                Name = request.Filter.Name,
-                ContractorCompany = request.Filter.ContractorCompany,
-                CustomerCompany = request.Filter.CustomerCompany,
-                IsDatePeriod = request.Filter.IsDatePeriod,
-                DateBegin = request.Filter.DateBegin,
-                DateEnd = request.Filter.DateEnd,
-                IsUser = request.Filter.IsUser,
-                UserId = request.Filter.UserId,
-                IsPriority = request.Filter.IsPriority,
-                Priority = request.Filter.Priority,
-                IsSpervisorUser = true,
-                SpervisorUserId = int.Parse(_userManager.GetUserId(User))
-            };
-            var result = _service.ProjectAll(filter);
+            var filter = Mapper.Map<ProjectFilterDto>(request.Filter);
+            filter.IsSpervisorUser = true;
+            filter.SpervisorUserId = int.Parse(_userManager.GetUserId(User));
+            request.ProjectList = Mapper.Map<List<ProjectModl>>(_service.ProjectAll(filter));
             request.Filter = request.Filter;
-            request.ProjectList = GetConvert(result);
             return View(request);
         }
 
@@ -147,7 +110,7 @@ namespace ProjectDataProgram.Web.Controllers
                     UserId = int.Parse(_userManager.GetUserId(User))
                 });
             ProjectIndexModel projectModl = new ProjectIndexModel();
-            if (projectModl != null) projectModl.ProjectList = GetConvert(projectList);
+            if (projectModl != null) projectModl.ProjectList = Mapper.Map<List<ProjectModl>>(projectList);
             projectModl.Filter = new ProjectFilterModel();
             return View(projectModl);
         }
@@ -156,96 +119,26 @@ namespace ProjectDataProgram.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> IndexEmp(ProjectIndexModel request)
         {
-            var filter = new ProjectFilterDto
-            {
-                Name = request.Filter.Name,
-                ContractorCompany = request.Filter.ContractorCompany,
-                CustomerCompany = request.Filter.CustomerCompany,
-                IsDatePeriod = request.Filter.IsDatePeriod,
-                DateBegin = request.Filter.DateBegin,
-                DateEnd = request.Filter.DateEnd,
-                IsUser = true,
-                UserId = int.Parse(_userManager.GetUserId(User)),
-                IsPriority = request.Filter.IsPriority,
-                Priority = request.Filter.Priority,
-                IsSpervisorUser = false
-            };
-            var result = _service.ProjectAll(filter);
+            var filter = Mapper.Map<ProjectFilterDto>(request.Filter);
+            filter.IsUser = true;
+            filter.UserId = int.Parse(_userManager.GetUserId(User));
+            request.ProjectList = Mapper.Map<List<ProjectModl>>(_service.ProjectAll(filter)) ;
             request.Filter = request.Filter;
-            request.ProjectList = GetConvert(result);
+            
             return View(request);
         }
-
-        private List<ProjectModl> GetConvert(List<ProjectDto> projectList)
-        {
-            List<ProjectModl> projectResultList = new List<ProjectModl>();
-
-            for (int i = 0; i < projectList.Count; i++)
-            {
-                var project = new ProjectModl
-                {
-                    Id = projectList[i].Id,
-                    Name = projectList[i].Name,
-                    ContractorCompany = projectList[i].ContractorCompany,
-                    CustomerCompany = projectList[i].CustomerCompany,
-                    DateBegin = projectList[i].DateBegin,
-                    DateEnd = projectList[i].DateEnd,
-                    Priority = projectList[i].Priority,
-                    SupervisorUserId = projectList[i].SupervisorUser.Id,
-                    SupervisorUserName = projectList[i].SupervisorUser.Name
-                };
-                project.ProjectTasks = projectList[i].ProjectTasks.Select(x => new ProjectTaskModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Comment = x.Comment,
-                    Priority = x.Priority,
-                    ProjectId = x.Project.Id,
-                    AuthorId = x.Author.Id,
-                    AuthorName = x.Author.Name + x.Author.EMail,
-                    ExecutorId = x.Executor.Id,
-                    ExecutorName  = x.Executor.Name + x.Executor.EMail,
-                    Status = x.Status
-                }).ToList();
-                for (int j = 0; j < projectList[i].ProjectUsers.Count; j++)
-                {
-                    project.ProjectUsers.Add(new ProjectUserModel
-                    {
-                        Id = projectList[i].ProjectUsers[j].User.Id,
-                        FullName = projectList[i].ProjectUsers[j].User.Name,
-                        Email = projectList[i].ProjectUsers[j].User.EMail
-                    });
-                }
-                projectResultList.Add(project);
-            }
-
-            return projectResultList;
-        }
-
-
 
         [Authorize(Roles = "AdminAupervisor")]
         public IActionResult Create()
         {
             var project = new ProjectModl();
-
-            var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.AdminAupervisor, StatusRole.ProjectManager }).Select(x =>
-                new ProjectUserModel
-                {
-                    Id = x.Id,
-                    Email = x.EMail,
-                    FullName = x.Name,
-                    Status = x.Status
-                }).ToList();
+            
+            var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                                        {StatusRole.AdminAupervisor, StatusRole.ProjectManager}, _serviceUser);
             project.SupervisorUserList = new SelectList(supervisorUserList, "Id", "FullName");
-            project.ProjectUsers = _serviceUser.UserList(new List<StatusRole>() {StatusRole.Employee}).Select(x =>
-                new ProjectUserModel
-                {
-                        Id = x.Id,
-                        Email = x.EMail,
-                        FullName = x.Name,
-                        Status = x.Status
-                }).ToList();
+
+            project.ProjectUsers = _helper.GetUsers(new List<StatusRole>()
+                                        {StatusRole.Employee}, _serviceUser, null);
             project.DateBegin = DateTime.Now;
             project.DateEnd = project.DateBegin.AddDays(14);
             return View(project);
@@ -257,31 +150,10 @@ namespace ProjectDataProgram.Web.Controllers
         public async Task<IActionResult> Create(ProjectModl request)
         {
 
-            var dto = new ProjectDto
-            {
-                Name = request.Name,
-                ContractorCompany = request.ContractorCompany,
-                CustomerCompany = request.CustomerCompany,
-                DateBegin = request.DateBegin,
-                DateEnd = request.DateEnd,
-                Priority = request.Priority,
-                SupervisorUser = new UserDto
-                {
-                    Id = request.SupervisorUserId
-                }
-            };
+            var dto = Mapper.Map<ProjectDto>(request);
             var userAddList = request.ProjectUsers.Where(x => x.IsAdd).ToList();
-            for (int i = 0; i < userAddList.Count; i++)
-            {
-                dto.ProjectUsers.Add(new ProjectUserDto
-                    {
-                        User = new UserDto
-                        {
-                            Id = userAddList[i].Id
-                        },
-                        Status = ProjectUserStatus.New
-                    });
-            }
+            if (userAddList?.Count > 0)
+                dto.ProjectUsers = Mapper.Map<List<UserDto>>(userAddList);
 
             var result = await _service.CreateItemAsync(dto);
 
@@ -291,23 +163,12 @@ namespace ProjectDataProgram.Web.Controllers
             }
             else
             {
-                var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.AdminAupervisor, StatusRole.ProjectManager }).Select(x =>
-                    new ProjectUserModel
-                    {
-                        Id = x.Id,
-                        Email = x.EMail,
-                        FullName = x.Name,
-                        Status = x.Status
-                    }).ToList();
+                var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                                            {StatusRole.AdminAupervisor, StatusRole.ProjectManager}, _serviceUser);
                 request.SupervisorUserList = new SelectList(supervisorUserList, "Id", "FullName");
-                request.ProjectUsers = _serviceUser.UserList(new List<StatusRole>() { StatusRole.Employee }).Select(x =>
-                    new ProjectUserModel
-                    {
-                            Id = x.Id,
-                            Email = x.EMail,
-                            FullName = x.Name,
-                            Status = x.Status
-                    }).ToList();
+
+                request.ProjectUsers = _helper.GetUsers(new List<StatusRole>()
+                                                {StatusRole.Employee}, _serviceUser, null);
                 request.DateBegin = DateTime.Now;
                 request.DateEnd = request.DateBegin.AddDays(14);
                 foreach (var resultError in result.Errors)
@@ -327,42 +188,15 @@ namespace ProjectDataProgram.Web.Controllers
                 return NotFound();
             }
             var projectDto = _service.GetProject(id.Value);
-            var project = new ProjectModl
-            {
-                Id = id.Value,
-                Name = projectDto.Name,
-                ContractorCompany = projectDto.ContractorCompany,
-                CustomerCompany = projectDto.CustomerCompany,
-                DateBegin = projectDto.DateBegin,
-                DateEnd = projectDto.DateEnd,
-                Priority = projectDto.Priority,
-                SupervisorUserId = projectDto.SupervisorUser.Id
-            };
+            var project = Mapper.Map<ProjectModl>(projectDto);
 
-            var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.AdminAupervisor, StatusRole.ProjectManager }).Select(x =>
-                new ProjectUserModel
-                {
-                    Id = x.Id,
-                    Email = x.EMail,
-                    FullName = x.Name,
-                    Status = x.Status
-                }).ToList();
+            var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                                        {StatusRole.AdminAupervisor, StatusRole.ProjectManager}, _serviceUser);
             project.SupervisorUserList = new SelectList(supervisorUserList, "Id", "FullName");
             
-            var projectUsersAll = _serviceUser.UserList(new List<StatusRole>() { StatusRole.Employee }).Select(x =>
-                  new ProjectUserModel
-                  {
-                      Id = x.Id,
-                      Email = x.EMail,
-                      FullName = x.Name,
-                      Status = x.Status
-                  }).ToList();
-            for (int i = 0; i < projectUsersAll.Count; i++)
-            {
-                var proDto = projectDto.ProjectUsers.FirstOrDefault(x => x.User.Id == projectUsersAll[i].Id);
-                projectUsersAll[i].Status = (proDto != null) ? ProjectUserStatus.Save : ProjectUserStatus.Free;
-                project.ProjectUsers.Add(projectUsersAll[i]);
-            }
+            project.ProjectUsers = _helper.GetUsers(new List<StatusRole>()
+                                { StatusRole.Employee }, _serviceUser, projectDto);
+            
             return View(project);
         }
 
@@ -371,48 +205,12 @@ namespace ProjectDataProgram.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProjectModl request)
         {
-            var dto = new ProjectDto
-            {
-                Id = request.Id,
-                Name = request.Name,
-                ContractorCompany = request.ContractorCompany,
-                CustomerCompany = request.CustomerCompany,
-                DateBegin = request.DateBegin,
-                DateEnd = request.DateEnd,
-                Priority = request.Priority,
-                SupervisorUser = new UserDto
-                {
-                    Id = request.SupervisorUserId
-                }
-            };
-            var userAddList = request.ProjectUsers.Where(x => x.IsAdd).ToList();
-            for (int i = 0; i < userAddList.Count; i++)
-            {
-                var projectUserDto = new ProjectUserDto
-                {
-                    User = new UserDto
-                    {
-                        Id = userAddList[i].Id
-                    }
-                };
-                projectUserDto.Status = ProjectUserStatus.New;
-                dto.ProjectUsers.Add(projectUserDto);
-            }
-
-            userAddList = request.ProjectUsers.Where(x => x.IsDelete).ToList();
-            for (int i = 0; i < userAddList.Count; i++)
-            {
-                var projectUserDto = new ProjectUserDto
-                {
-                    User = new UserDto
-                    {
-                        Id = userAddList[i].Id
-                    }
-                };
-                projectUserDto.Status = ProjectUserStatus.Delete;
-                dto.ProjectUsers.Add(projectUserDto);
-            }
-
+            var dto = Mapper.Map<ProjectDto>(request);
+            var userList = request.ProjectUsers.Where(x => x.IsAdd || x.IsDelete).ToList();
+            dto.ProjectUsers = new List<UserDto>();
+            if (userList?.Count > 0)
+                dto.ProjectUsers = Mapper.Map<List<UserDto>>(userList);
+            
             var result = await _service.EditItemAsync(dto);
 
             if (result.IsSuccess)
@@ -421,16 +219,13 @@ namespace ProjectDataProgram.Web.Controllers
             }
             else
             {
-                var supervisorUserList = _serviceUser.UserList(new List<StatusRole>() { StatusRole.AdminAupervisor, StatusRole.ProjectManager }).Select(x =>
-                    new ProjectUserModel
-                    {
-                        Id = x.Id,
-                        Email = x.EMail,
-                        FullName = x.Name,
-                        Status = x.Status
-                    }).ToList();
+                var supervisorUserList = _helper.GetUsers(new List<StatusRole>()
+                                    {StatusRole.AdminAupervisor, StatusRole.ProjectManager}, _serviceUser);
                 request.SupervisorUserList = new SelectList(supervisorUserList, "Id", "FullName");
-                
+
+                request.ProjectUsers = _helper.GetUsers(new List<StatusRole>()
+                                    {StatusRole.Employee}, _serviceUser, dto);
+
                 return View(request);
             }
         }

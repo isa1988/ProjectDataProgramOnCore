@@ -73,7 +73,12 @@ namespace ProjectDataProgram.Web
             services.AddScoped<IProjectTaskService, ProjectTaskService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            Mapper.Initialize(config => config.AddProfile(new MappingProfile()));
+            Mapper.Initialize(config =>
+            {
+                config.AddProfile<ProjectDataProgram.Web.MappingProfile>();
+                config.AddProfile<ProjectDataProgram.Service.MappingProfile>();
+
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

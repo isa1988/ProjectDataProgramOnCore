@@ -11,6 +11,12 @@ namespace ProjectDataProgram.DAL.Repositories
 {
     class ProjectTaskRepository : Repository<ProjectTask>, IProjectTaskRepository
     {
+
+        private IQueryable<ProjectTask> GetInclude()
+        {
+            return DbSet.Include(p => p.Author).Include(x => x.Executor).Include(x => x.Project);
+        }
+
         public ProjectTaskRepository(DataDbContext context) : base(context)
         {
             DbSet = context.Tasks;
@@ -18,19 +24,18 @@ namespace ProjectDataProgram.DAL.Repositories
 
         public override IEnumerable<ProjectTask> GetAll()
         {
-            return DbSet.Include(p => p.Author).Include(x => x.Executor).Include(x => x.Project).ToList();
+            return GetInclude().ToList();
         }
 
         public override ProjectTask GetById(int id)
         {
-            return DbSet.Include(p => p.Author).Include(x => x.Executor)
-                        .Include(x => x.Project).FirstOrDefault(p => p.Id == id);
+            return GetInclude().FirstOrDefault(p => p.Id == id);
         }
 
         public IEnumerable<ProjectTask> GetFilter(string name, int? authorId, int? executorId, int? projectId,
                                             int? priority, int? status)
         {
-            IQueryable<ProjectTask> result = DbSet.Include(p => p.Author).Include(x => x.Executor).Include(x => x.Project);
+            IQueryable<ProjectTask> result = GetInclude();
             if (name?.Length > 0)
                 result = result.Where(x => x.Name.ToLower().Contains(name.ToLower()));
             if (authorId.HasValue)

@@ -52,6 +52,25 @@ namespace ProjectDataProgram.Service.Services
             return null;
         }
 
+        private void GetProjectDtoToProject(ProjectDto projectDto, Project project)
+        {
+            project.Name = projectDto.Name;
+            project.CustomerCompany = projectDto.CustomerCompany;
+            project.ContractorCompany = projectDto.CustomerCompany;
+            project.Priority = projectDto.Priority;
+            project.DateBegin = projectDto.DateBegin;
+            project.DateEnd = projectDto.DateEnd;
+            project.SupervisorUserId = projectDto.SupervisorUser.Id;
+        }
+
+        private void SetProjectIdToList(List<ProjectUser> users, int id)
+        {
+            for (int i = 0; i < users.Count; i++)
+            {
+                users[i].ProjectId = id;
+            }
+        }
+
         public async Task<EntityOperationResult<Project>> CreateItemAsync(ProjectDto projectCreateDto)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
@@ -62,40 +81,20 @@ namespace ProjectDataProgram.Service.Services
                     return EntityOperationResult<Project>
                         .Failure()
                         .AddError("Не указаны исполнители");
-                for (int i = 0; i < projectCreateDto.ProjectUsers.Count; i++)
-                {
-                    if (projectCreateDto.ProjectUsers[i].User == null)
-                        return EntityOperationResult<Project>
-                            .Failure()
-                            .AddError("Не указан исполнитель в списке");
-                }
 
                 try
                 {
-                    var project = new Project
-                    {
-                        Name = projectCreateDto.Name,
-                        CustomerCompany = projectCreateDto.CustomerCompany,
-                        ContractorCompany = projectCreateDto.CustomerCompany,
-                        Priority = projectCreateDto.Priority,
-                        DateBegin = projectCreateDto.DateBegin,
-                        DateEnd = projectCreateDto.DateEnd,
-                        SupervisorUserId = projectCreateDto.SupervisorUser.Id
-                    };
+                    var project = new Project();
+                    GetProjectDtoToProject(projectCreateDto, project);
                     
                     var entity = await unitOfWork.Project.AddAsync(project);
                     await unitOfWork.CompleteAsync();
 
-                    var projectUserList = new List<ProjectUser>();
-                    for (int i = 0; i < projectCreateDto.ProjectUsers.Count; i++)
-                    {
-                        projectUserList.Add(new ProjectUser
-                        {
-                            ProjectId = entity.Id,
-                            UserId = projectCreateDto.ProjectUsers[i].User.Id
-                        });
-                    }
-                    unitOfWork.Project.AddAsync(projectUserList);
+                    var projectUserList = Mapper.Map<List<ProjectUser>>(projectCreateDto.ProjectUsers
+                                            .Where(x => x.Status == ProjectUserStatus.New)
+                                            .ToList());
+                    SetProjectIdToList(projectUserList, entity.Id);
+                    unitOfWork.Project.UpdateProjectUsers(projectUserList);
                     await unitOfWork.CompleteAsync();
                     return EntityOperationResult<Project>.Success(entity);
                 }
@@ -115,50 +114,35 @@ namespace ProjectDataProgram.Service.Services
                 var project = unitOfWork.Project.GetById(projectEditDto.Id);
                 for (int i = 0; i < projectEditDto.ProjectUsers.Count; i++)
                 {
-                    if (projectEditDto.ProjectUsers[i].User == null)
-                        return EntityOperationResult<Project>
-                            .Failure()
-                            .AddError("Не указан исполнитель в списке");
                     if (projectEditDto.ProjectUsers[i].Status == ProjectUserStatus.New)
                     {
-                        if (project.ProjectUsers.Count(x => x.UserId == projectEditDto.ProjectUsers[i].User.Id) > 0)
+                        if (project.ProjectUsers.Count(x => x.UserId == projectEditDto.ProjectUsers[i].Id) > 0)
                             return EntityOperationResult<Project>
                                 .Failure()
-                                .AddError($"Пользователь {projectEditDto.ProjectUsers[i].User} уже есть в базе");
+                                .AddError($"Пользователь {projectEditDto.ProjectUsers[i].Name} уже есть в базе");
                     }
                 }
 
                 try
                 {
-                    project.Name = projectEditDto.Name;
-                    project.CustomerCompany = projectEditDto.CustomerCompany;
-                    project.ContractorCompany = projectEditDto.CustomerCompany;
-                    project.Priority = projectEditDto.Priority;
-                    project.DateBegin = projectEditDto.DateBegin;
-                    project.DateEnd = projectEditDto.DateEnd;
-                    project.SupervisorUserId = projectEditDto.SupervisorUser.Id;
+                    GetProjectDtoToProject(projectEditDto, project);
 
                     unitOfWork.Project.Update(project);
                     await unitOfWork.CompleteAsync();
 
-                    var projectUserTemp = projectEditDto.ProjectUsers
+                    var projectUserList = Mapper.Map<List<ProjectUser>>(projectEditDto.ProjectUsers
                                                         .Where(x => x.Status == ProjectUserStatus.New)
-                                                        .ToList();
-                    var projectUserList = new List<ProjectUser>();
-                    for (int i = 0; i < projectUserTemp.Count; i++)
-                    {
-                        projectUserList.Add(new ProjectUser
-                        {
-                            ProjectId = project.Id,
-                            UserId = projectUserTemp[i].User.Id
-                        });
-                    }
-                    projectUserTemp = projectEditDto.ProjectUsers
-                                                        .Where(x => x.Status == ProjectUserStatus.Delete)
-                                                        .ToList();
-                    var projectUserDeleteList = unitOfWork.Project.GetOProjectUsers(projectEditDto.ProjectUsers
-                                                                .Select(x => x.User.Id).ToList(), project.Id);
-                    unitOfWork.Project.Update(projectUserList, projectUserDeleteList);
+                                                        .ToList());
+                    SetProjectIdToList(projectUserList, project.Id);
+                    List<int> deleteList = projectEditDto.ProjectUsers
+                        .Where(x => x.Status == ProjectUserStatus.Delete)
+                        .Select(x => x.Id).ToList();
+                    var projectUserDeleteList = new List<ProjectUser>();
+                    if (deleteList?.Count > 0)
+                        projectUserDeleteList = project.ProjectUsers
+                            .Where(y => deleteList.Any(x => x == y.Id)).ToList();
+                    SetProjectIdToList(projectUserDeleteList, project.Id);
+                    unitOfWork.Project.UpdateProjectUsers(projectUserList, projectUserDeleteList);
                     await unitOfWork.CompleteAsync();
                     return EntityOperationResult<Project>.Success(project);
                 }
@@ -168,100 +152,13 @@ namespace ProjectDataProgram.Service.Services
                 }
             }
         }
-
-        private List<ProjectDto> GetConvertProjectList(List<Project> projectList)
-        {
-            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
-            {
-                List<ProjectDto> projectResultList = new List<ProjectDto>();
-                List<User> users = unitOfWork.User.UserList(new List<StatusRole>() { StatusRole.Employee });
-                List<User> userPMs = unitOfWork.User.UserList(new List<StatusRole>()
-                                      { StatusRole.ProjectManager, StatusRole.AdminAupervisor });
-
-                for (int i = 0; i < projectList.Count; i++)
-                {
-                    ProjectDto project = new ProjectDto
-                    {
-                        Id = projectList[i].Id,
-                        Name = projectList[i].Name,
-                        ContractorCompany = projectList[i].ContractorCompany,
-                        CustomerCompany = projectList[i].CustomerCompany,
-                        DateBegin = projectList[i].DateBegin,
-                        DateEnd = projectList[i].DateEnd,
-                        Priority = projectList[i].Priority,
-                        SupervisorUser = new UserDto
-                        {
-                            Id = projectList[i].SupervisorUser.Id,
-                            Name = projectList[i].SupervisorUser.FullName,
-                            EMail = projectList[i].SupervisorUser.Email
-                        },
-                    };
-                    for (int j = 0; j < projectList[i].Tasks.Count; j++)
-                    {
-                        User author = userPMs.FirstOrDefault(x => x.Id == projectList[i].Tasks[j].AuthorId);
-                        if (author == null) continue;
-                        User executor = users.FirstOrDefault(x => x.Id == projectList[i].Tasks[j].ExecutorId);
-                        if (executor == null) continue;
-
-                        project.ProjectTasks.Add(new ProjectTaskDto
-                        {
-                            Id = projectList[i].Tasks[j].Id,
-                            Name = projectList[i].Tasks[j].Name,
-                            Comment = projectList[i].Tasks[j].Comment,
-                            Priority = projectList[i].Tasks[j].Priority,
-                            Status = (StatusTask)projectList[i].Tasks[j].Status,
-                            Project = new ProjectDto
-                            {
-                                Id = projectList[i].Tasks[j].ProjectId
-                            },
-                            Author = new UserDto
-                            {
-                                Id = author.Id,
-                                Name = author.FullName,
-                                EMail = author.Email
-                            },
-                            Executor = new UserDto
-                            {
-                                Id = executor.Id,
-                                Name = executor.FullName,
-                                EMail = executor.Email
-                            }
-                        });
-                    }
-
-
-
-                    for (int j = 0; j < projectList[i].ProjectUsers.Count; j++)
-                    {
-                        User user = users.FirstOrDefault(x => x.Id == projectList[i].ProjectUsers[j].UserId);
-                        if (user == null) continue;
-
-                        project.ProjectUsers.Add(new ProjectUserDto
-                        {
-                            Project = project,
-                            User = new UserDto
-                            {
-                                Id = user.Id,
-                                Name = user.FullName,
-                                EMail = user.Email
-                            }
-                        });
-                    }
-
-                    projectResultList.Add(project);
-                }
-
-                return projectResultList;
-            }
-        }
-
+        
         public List<ProjectDto> ProjectAll()
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 List<Project> projectList = unitOfWork.Project.GetAll().ToList();
-                var projectResultList = GetConvertProjectList(projectList);
-
+                var projectResultList = Mapper.Map<List<ProjectDto>>(projectList);
                 return projectResultList;
             }
         }
@@ -288,7 +185,7 @@ namespace ProjectDataProgram.Service.Services
                     supervisorUserId: projectFilterDto.SpervisorUserId,
                     userId: projectFilterDto.UserId
                 ).ToList();
-                var projectResultList = GetConvertProjectList(projectList);
+                var projectResultList = Mapper.Map<List<ProjectDto>>(projectList);
 
                 return projectResultList;
             }
@@ -299,40 +196,8 @@ namespace ProjectDataProgram.Service.Services
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 Project project = unitOfWork.Project.GetById(id);
-                List<User> users = unitOfWork.User.UserList(new List<StatusRole>(){ StatusRole.Employee });
-                ProjectDto projectDto = new ProjectDto
-                {
-                    Id = project.Id,
-                    Name = project.Name,
-                    ContractorCompany = project.ContractorCompany,
-                    CustomerCompany = project.CustomerCompany,
-                    DateBegin = project.DateBegin,
-                    DateEnd = project.DateEnd,
-                    Priority = project.Priority
-                };
-                projectDto.SupervisorUser = new UserDto
-                {
-                    Id = project.SupervisorUser.Id,
-                    Name = project.SupervisorUser.FullName,
-                    EMail = project.SupervisorUser.Email
-                };
-                for (int i = 0; i < project.ProjectUsers.Count; i++)
-                {
-                    User user = users.FirstOrDefault(x => x.Id == project.ProjectUsers[i].UserId);
-                    if (user == null) continue;
-                    ProjectUserDto projectUserDto = new ProjectUserDto
-                    {
-                        User = new UserDto
-                        {
-                            Id = user.Id,
-                            Name = user.FullName,
-                            EMail = user.Email
-                        }
-                    };
-                    projectDto.ProjectUsers.Add(projectUserDto);
-                }
-
-                return projectDto;
+                
+                return Mapper.Map<ProjectDto>(project);
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using ProjectDataProgram.Core.DataBase;
 using ProjectDataProgram.DAL.Unit.Contracts;
 using ProjectDataProgram.Service.Dtos;
@@ -110,32 +111,7 @@ namespace ProjectDataProgram.Service.Services
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 var projectTask = unitOfWork.ProjectTask.GetById(id);
-                if (projectTask == null) return null;
-                var projectTaskDto = new ProjectTaskDto
-                {
-                    Id = projectTask.Id,
-                    Name = projectTask.Name,
-                    Priority = projectTask.Priority,
-                    Status = (StatusTask)projectTask.Status,
-                    Comment = projectTask.Comment,
-                    Project = new ProjectDto
-                    {
-                        Id = projectTask.ProjectId
-                    },
-                    Author = new UserDto
-                    {
-                        Id = projectTask.Author.Id,
-                        Name = projectTask.Author.FullName,
-                        EMail = projectTask.Author.Email
-                    },
-                    Executor = new UserDto
-                    {
-                        Id = projectTask.Executor.Id,
-                        Name = projectTask.Executor.FullName,
-                        EMail = projectTask.Executor.Email
-                    },
-                };
-                return projectTaskDto;
+                return Mapper.Map<ProjectTaskDto>(projectTask);
             }
         }
     }

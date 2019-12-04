@@ -11,6 +11,8 @@ namespace ProjectDataProgram.Service.Dtos
         /// </summary>
         public int Id { get; set; }
 
+        public int ProjectUserId { get; set; }
+
         /// <summary>
         /// ФИО
         /// </summary>
@@ -27,7 +29,16 @@ namespace ProjectDataProgram.Service.Dtos
         {
             Name = string.Empty;
             EMail = string.Empty;
-            Status = ProjectUserStatus.Save;
+            if ((int)Status == 0)
+                Status = ProjectUserStatus.Save;
         }
+    }
+
+    public enum ProjectUserStatus
+    {
+        Save = 0,
+        Free = 1,
+        New = 2,
+        Delete = 3
     }
 }

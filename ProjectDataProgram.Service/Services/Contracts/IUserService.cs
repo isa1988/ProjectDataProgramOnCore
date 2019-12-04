@@ -8,7 +8,7 @@ namespace ProjectDataProgram.Service.Services.Contracts
 {
     public interface IUserService
     {
-        List<UserDto> UserList();
-        List<UserDto> UserList(List<StatusRole> roles);
+        List<UserDto> UserList(ProjectDto projectDto);
+        List<UserDto> UserList(List<StatusRole> roles, bool isRegistr, ProjectDto projectDto = null);
     }
 }

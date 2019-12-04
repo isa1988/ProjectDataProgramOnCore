@@ -49,7 +49,7 @@ namespace ProjectDataProgram.Service.Dtos
         /// <summary>
         /// Исполнители
         /// </summary>
-        public virtual List<ProjectUserDto> ProjectUsers { get; set; }
+        public virtual List<UserDto> ProjectUsers { get; set; }
 
         /// <summary>
         /// Задания
@@ -61,7 +61,7 @@ namespace ProjectDataProgram.Service.Dtos
             Name = string.Empty;
             CustomerCompany = string.Empty;
             ContractorCompany = string.Empty;
-            ProjectUsers = new List<ProjectUserDto>();
+            ProjectUsers = new List<UserDto>();
             ProjectTasks = new List<ProjectTaskDto>();
         }
     }

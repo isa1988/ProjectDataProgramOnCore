@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ProjectDataProgram.Core.DataBase
 {
-    public class Entity
+    public abstract class Entity
     {
         public int Id { get; set; }
     }

@@ -12,9 +12,8 @@ namespace ProjectDataProgram.Core.Repositories
             string customerCompany, bool isDatePeriod, DateTime dateBegin, DateTime dateEnd,
             int? priority, int? supervisorUserId, int? userId);
 
-        void AddAsync(List<ProjectUser> users);
-
-        void Update(List<ProjectUser> addUsers, List<ProjectUser> deleteUsers);
+        void UpdateProjectUsers(List<ProjectUser> addUsers, List<ProjectUser> deleteUsers);
+        void UpdateProjectUsers(List<ProjectUser> addUsers);
 
         List<ProjectUser> GetOProjectUsers(List<int> idUserList, int projectId);
     }
