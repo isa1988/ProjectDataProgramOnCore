@@ -11,6 +11,7 @@ namespace ProjectDataProgram.Service.Services.Contracts
     {
         Task<EntityOperationResult<Project>> CreateItemAsync(ProjectDto projectCreateDto);
         Task<EntityOperationResult<Project>> EditItemAsync(ProjectDto projectEditto);
+        Task<EntityOperationResult<Project>> DeleteItemAsync(ProjectDto projectDeleteDto);
         List<ProjectDto> ProjectAll();
         List<ProjectDto> ProjectAll(ProjectFilterDto projectFilterDto);
         ProjectDto GetProject(int id);

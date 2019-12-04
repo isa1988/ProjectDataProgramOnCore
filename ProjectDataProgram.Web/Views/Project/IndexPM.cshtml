@@ -115,8 +115,8 @@
             <div class="col-4">
                 <div class="row row-conformity">
                     <div class="col-12">
-                        @Html.ActionLink("Добавить задание", "Create", "ProjectTask", new { projectId = rec.Id })
-
+                        @Html.ActionLink("Добавить задание", "Create", "ProjectTask", new { projectId = rec.Id }) |
+                        @Html.ActionLink("Удалить", "Delete", "ProjectTask", new { id = rec.Id })
                     </div>
                 </div>
             </div>

@@ -133,8 +133,8 @@
                     <div class="col-12">
 
                         @Html.ActionLink("Редактировать", "Edit", new { id = rec.Id }) |
-                        @{ //Html.ActionLink("Delete", "Delete", new {id = rec.Id})
-                        }
+                        @Html.ActionLink("Удалить", "Delete", new {id = rec.Id})
+                        <br/>
 
                         @Html.ActionLink("Добавить задание", "Create", "ProjectTask", new { projectId = rec.Id })
 
@@ -146,22 +146,25 @@
     <div class="row">
         @foreach (ProjectDataProgram.Web.Models.ProjectModl rec in organizations)
         {
-            <div class="col-4">
-                <p>Руководитель @rec.SupervisorUserName</p>
-                <p>Сотрудники</p>
-                @foreach (ProjectDataProgram.Web.Models.ProjectUserModel recUser in rec.ProjectUsers)
-                {
-                    <p> @recUser.FullName + @recUser.Email </p>
-                }
-                <p>Задания:</p>
-                @foreach (ProjectDataProgram.Web.Models.ProjectTaskModel recTask in rec.ProjectTasks)
-                {
-                    <p> @recTask.Name </p>
-                    @Html.ActionLink("Редактировать", "Edit", "ProjectTask", new {id = recTask.Id})
-                    <p>автор @recTask.AuthorName исполнитель @recTask.ExecutorName статус @recTask.Status</p>
-                }
+        <div class="col-4">
+            <p>Руководитель @rec.SupervisorUserName</p>
+            <p>Сотрудники</p>
+            @foreach (ProjectDataProgram.Web.Models.ProjectUserModel recUser in rec.ProjectUsers)
+            {
+                <p> @recUser.FullName + @recUser.Email </p>
+            }
+            <p>Задания:</p>
+            @foreach (ProjectDataProgram.Web.Models.ProjectTaskModel recTask in rec.ProjectTasks)
+            {
+                <p> @recTask.Name </p>
+                <p>
+                    @Html.ActionLink("Редактировать", "Edit", "ProjectTask", new { id = recTask.Id }) |
+                    @Html.ActionLink("Удалить", "Delete", "ProjectTask", new { id = recTask.Id })
+                </p>
+                <p>автор @recTask.AuthorName исполнитель @recTask.ExecutorName статус @recTask.Status</p>
+            }
 
-            </div>
+        </div>
         }
     </div>
 }

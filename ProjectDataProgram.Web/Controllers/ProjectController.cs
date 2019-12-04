@@ -229,5 +229,39 @@ namespace ProjectDataProgram.Web.Controllers
                 return View(request);
             }
         }
+        [Authorize(Roles = "AdminAupervisor")]
+        public IActionResult Delete(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+            var projectDto = _service.GetProject(id.Value);
+            var project = Mapper.Map<ProjectModl>(projectDto);
+            project.ProjectUsers = Mapper.Map<List<ProjectUserModel>>(projectDto.ProjectUsers);
+
+            return View(project);
+        }
+
+        // POST: Organization/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(ProjectModl request)
+        {
+            var dto = Mapper.Map<ProjectDto>(request);
+
+            var result = await _service.DeleteItemAsync(dto);
+
+            if (result.IsSuccess)
+            {
+                return RedirectToAction("IndexAdmin");
+            }
+            else
+            {
+                request.ProjectUsers = Mapper.Map<List<ProjectUserModel>>(request.ProjectUsers);
+
+                return View(request);
+            }
+        }
     }
 }

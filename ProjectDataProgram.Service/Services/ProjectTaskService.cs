@@ -106,6 +106,27 @@ namespace ProjectDataProgram.Service.Services
             }
         }
 
+        public async Task<EntityOperationResult<ProjectTask>> DeleteItemAsync(ProjectTaskDto projectTDtoDeleteDto)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var projectTask = unitOfWork.ProjectTask.GetById(projectTDtoDeleteDto.Id);
+                
+
+                try
+                {
+                    unitOfWork.ProjectTask.Delete(projectTask);
+                    await unitOfWork.CompleteAsync();
+
+                    return EntityOperationResult<ProjectTask>.Success(projectTask);
+                }
+                catch (Exception ex)
+                {
+                    return EntityOperationResult<ProjectTask>.Failure().AddError(ex.Message);
+                }
+            }
+        }
+
         public ProjectTaskDto GetProjectTaskById(int id)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())

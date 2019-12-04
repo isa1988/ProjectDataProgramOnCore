@@ -180,5 +180,44 @@ namespace ProjectDataProgram.Web.Controllers
                 return View(request);
             }
         }
+
+        [Authorize(Roles = "AdminAupervisor, ProjectManager")]
+        public IActionResult Delete(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+            var projectTaskDto = _service.GetProjectTaskById(id.Value);
+            var projectTask = Mapper.Map<ProjectTaskModel>(projectTaskDto);
+
+            return View(projectTask);
+        }
+
+        // POST: Organization/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(ProjectTaskModel request)
+        {
+            var dto = Mapper.Map<ProjectTaskDto>(request);
+
+            var result = await _service.DeleteItemAsync(dto);
+
+            if (result.IsSuccess)
+            {
+                if (User.IsInRole("AdminAupervisor"))
+                {
+                    return RedirectToAction("IndexAdmin", "Project");
+                }
+                else
+                {
+                    return RedirectToAction("IndexPM", "Project");
+                }
+            }
+            else
+            {
+                return View(request);
+            }
+        }
     }
 }

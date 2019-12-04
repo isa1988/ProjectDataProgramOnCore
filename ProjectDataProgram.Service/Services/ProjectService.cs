@@ -152,7 +152,34 @@ namespace ProjectDataProgram.Service.Services
                 }
             }
         }
-        
+
+        public async Task<EntityOperationResult<Project>> DeleteItemAsync(ProjectDto projectDeleteDto)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var project = unitOfWork.Project.GetById(projectDeleteDto.Id);
+
+                if (project.ProjectUsers.Any(x => projectDeleteDto.ProjectTasks.Count > 0) )
+                    return EntityOperationResult<Project>
+                        .Failure()
+                        .AddError($"Есть задания удалите сперва их");
+
+                try
+                {
+                    SetProjectIdToList(project.ProjectUsers, project.Id);
+                    unitOfWork.Project.UpdateProjectUsers(null, project.ProjectUsers);
+                    unitOfWork.Project.Delete(project);
+                    await unitOfWork.CompleteAsync();
+
+                    return EntityOperationResult<Project>.Success(project);
+                }
+                catch (Exception ex)
+                {
+                    return EntityOperationResult<Project>.Failure().AddError(ex.Message);
+                }
+            }
+        }
+
         public List<ProjectDto> ProjectAll()
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
